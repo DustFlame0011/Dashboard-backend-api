@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 
 app.get("/", (req, res) => {
-  res.send("Get API work!");
+  res.send("Welcome to OurService");
 });
 
 app.use("/api/v1/users", userRouter);
@@ -21,8 +21,8 @@ app.use("/api/v1/properties", propertyRouter);
 const startServer = async () => {
   try {
     connectDb(process.env.MONGODB_URL);
-    app.listen(process.env.PORT, () => {
-      console.log(`server is running on port ${process.env.PORT}`);
+    app.listen(8080, () => {
+      console.log("server is running on port http://localhost:8080");
     });
   } catch (error) {
     console.log(error);
