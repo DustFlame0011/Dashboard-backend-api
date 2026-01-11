@@ -13,7 +13,12 @@ const createUser = async (req, res) => {
   try {
     const { name, email, avatar } = req.body;
     const userExits = await UserModel.findOne({ email });
-    return res.status(200).json(userExits);
+
+    if (userExits) {
+      return res.status(200).json(userExits);
+    }
+    const newUser = new UserModel.create({ name, email, avatar });
+    res.status(200).json(newUser);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
