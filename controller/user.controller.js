@@ -12,20 +12,14 @@ const getAllUsers = async (req, res) => {
 const createUser = async (req, res) => {
   try {
     const { name, email, avatar } = req.body;
-    const userExists = await UserModel.findOne({ email });
-    if (userExists) {
-      return res.status(200).json(userExists);
-    }
-
-    const newUser = new UserModel.create({ name, email, avatar });
-    await newUser.save();
-    res.status(201).json(newUser);
+    const userExits = await UserModel.findOne({ email });
+    return res.status(200).json(userExits);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-const getUserInfoById = async (req, res) => {
+const getUserInfoByID = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await UserModel.findOne({ _id: id }).populate("allProperties");
@@ -39,4 +33,4 @@ const getUserInfoById = async (req, res) => {
   }
 };
 
-export { getAllUsers, createUser, getUserInfoById };
+export { getAllUsers, createUser, getUserInfoByID };
