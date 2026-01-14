@@ -22,27 +22,59 @@ const getAllProperties = async (req, res) => {
     propertyType = "",
   } = req.query;
 
+  console.log("Query params received:", {
+    _end,
+    _order,
+    _start,
+    _sort,
+    title_like,
+    propertyType,
+  });
+
   const query = {};
 
-  if (title_like !== "") {
+  if (title_like && title_like.trim() !== "") {
     query.title = { $regex: title_like, $options: "i" };
   }
 
-  if (propertyType !== "") {
+  if (propertyType && propertyType.trim() !== "") {
     query.propertyType = propertyType;
   }
 
+  console.log("MongoDB query:", query);
+
   try {
-    const count = await PropertyModel.countDocuments({ query });
+    const count = await PropertyModel.countDocuments(query);
+
+    // Parse string to number
+    const start = _start ? parseInt(_start) : 0;
+    const end = _end ? parseInt(_end) : count;
+    const limit = end - start;
+
+    // Build sort object
+    let sortObj = {};
+    if (_sort && _order) {
+      sortObj[_sort] = _order.toLowerCase() === "asc" ? 1 : -1;
+    } else {
+      // Default sort by createdAt descending
+      sortObj = { createdAt: -1 };
+    }
+
+    console.log("Sort object:", sortObj);
+    console.log("Pagination:", { start, limit });
+
     const properties = await PropertyModel.find(query)
-      .limit(_end)
-      .skip(_start)
-      .sort({ [_sort]: _order === "asc" ? 1 : -1 });
+      .limit(limit)
+      .skip(start)
+      .sort(sortObj);
+
+    console.log("Found properties:", properties.length);
 
     res.header("x-total-count", count);
     res.header("Access-Control-Expose-Headers", "x-total-count");
     res.status(200).json(properties);
   } catch (error) {
+    console.error("Error:", error);
     res.status(500).json({ message: error.message });
   }
 };
